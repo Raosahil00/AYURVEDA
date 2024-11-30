@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayurveda Wellness</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Montserrat', sans-serif;
+    }
+    .card-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 0 2rem;
+    }
+
+    .card {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s;
+        backdrop-filter: blur(10px);
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    body {
+        background: linear-gradient(135deg, #a8c8e0, #f0f4f8);
+        color: #333;
+    }
+
+    #close-button:active {
+        transform: scale(0.95);
+    }
+
+    .info-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        z-index: 2000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    #close-button {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        background-color: #ff6f61;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    #close-button:hover {
+        background-color: #e55a50;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hero-content h1 {
+        font-size: 6rem;
+        font-family: 'Anton', sans-serif;
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    .blur-background {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+
+    .info-section {
+        background: rgb(255, 255, 255);
+        padding: 2rem;
+        text-align: center;
+        margin: 2rem 0;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-section h2 {
+        color: #ff6f61;
+        margin-bottom: 1rem;
+    }
+
+    .info-cards {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .info-card {
+        background: rgb(255, 255, 255);
+        border-radius: 10px;
+        padding: 1rem;
+        width: 200px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, background 0.3s;
+    }
+
+    .info-card:hover {
+        transform: scale(1.05);
+        background: rgb(255, 255, 255);
+    }
+
+    .info-card h3 {
+        color: #ff6f61;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-card p {
+        color: #555;
+    }
+
+    .navbar {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(15px);
+        padding: 1rem;
+        position: fixed;
+        width: 100%;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-links {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+    }
+
+    .nav-links a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 1.1rem;
+        transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+        color: #ff6f61;
+    }
+
+    .hero {
+        background: rgba(0, 0, 0, 0.5);
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-content h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .section {
+        padding: 4rem 2rem;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    .yoga-modal.show {
+        display: block;
+        opacity: 1;
+    }
+
+    .yoga-modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border: 1px solid #888;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        text-align: center;
+    }
+
+    .yoga-modal-content img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .section-title {
+        text-align: center;
+        color: #ff6f61;
+        margin-bottom: 2rem;
+    }
+
+    footer {
+        background: rgba(255, 160, 122, 0.5);
+        color: white;
+        text-align: center;
+        padding: 2rem;
+        margin-top: 2rem;
+        backdrop-filter: blur(10px);
+    }
+
+    @media (max-width: 768px) {
+        .nav-links {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#medicines">Medicines</a>
+            <a href="#remedies">Home Remedies</a>
+            <a href="#yoga">Yoga</a>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1 style="font-size: 6rem; font-family: 'Anton', sans-serif;">Discover the Power of Ayurveda</h1>
+            <p style="font-size: 3rem; font-family: 'Anton', sans-serif;">Ancient wisdom for modern wellness</p>
+        </div>
+    </section>
+
+    <section class="info-section">
+        <h2>Did You Know?</h2>
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>Ayurveda is Over 5,000 Years Old</h3>
+                <p>Originating in India, Ayurveda is one of the oldest holistic healing systems in the world.</p>
+            </div>
+            <div class="info-card">
+                <h3>Balance is Key</h3>
+                <p>Ayurveda emphasizes the balance of body, mind, and spirit for optimal health.</p>
+            </div>
+            <div class="info-card">
+                <h3>Personalized Treatments</h3>
+                <p>Ayurvedic treatments are tailored to individual needs based on their unique dosha.</p>
+            </div>
+            <div class="info-card">
+                <h3>Natural Remedies</h3>
+                <p>Ayurveda uses natural herbs and ingredients to promote healing and wellness.</p>
+            </div>
+        </div>
+        <section id="medicines" class="section medicines">
+            <h2 class="section-title">Ayurvedic Medicines</h2>
+            <div class="card-container">
+                <div class="card" onclick="toggleDetails('ashwagandha-details')">
+                    <h3>Ashwagandha</h3>
+                    <p>An adaptogenic herb known for its stress-relieving properties.</p>
+                </div>
+                <div class="card-details" id="ashwagandha-details" style="display: none;">
+                    <h4>Ashwagandha (Withania somnifera)</h4>
+                    <ul>
+                        <li><strong>Properties:</strong> Adaptogenic, rejuvenative, and anti-stress.</li>
+                        <li><strong>Benefits:</strong>
+                            <ul>
+                                <li>Reduces cortisol levels, helping combat stress and anxiety.</li>
+                                <li>Enhances stamina, strength, and energy levels.</li>
+                                <li>Improves brain function, including memory and focus.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Common Uses:</strong>
+                            <ul>
+                                <li>Used in stress-relief tonics and immunity-boosting supplements.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+        
+                <div class="card" onclick="toggleDetails('triphala-details')">
+                    <h3>Triphala</h3>
+                    <p>A traditional herbal formulation known for its digestive properties.</p>
+                </div>
+                <div class="card-details" id="triphala-details" style="display: none;">
+                    <h4>Triphala</h4>
+                    <ul>
+                        <li><strong>Composition:</strong> Amalaki, Bibhitaki, Haritaki.</li>
+                        <li><strong>Properties:</strong> Laxative, detoxifying, and rejuvenative.</li>
+                        <li><strong>Benefits:</strong>
+                            <ul>
+                                <li>Improves digestion and prevents constipation.</li>
+                                <li>Detoxifies the body and supports liver health.</li>
+                                <li>Enhances immunity and promotes overall vitality.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Common Uses:</strong>
+                            <ul>
+                                <li>Used as a general health tonic and in digestive aids.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+        
+                <div class="card" onclick="toggleDetails('turmeric-details')">
+                    <h3>Turmeric</h3>
+                    <p>Known for its anti-inflammatory properties.</p>
+                </div>
+                <div class="card-details" id="turmeric-details" style="display: none;">
+                    <h4>Turmeric (Curcuma longa)</h4>
+                    <ul>
+                        <li><strong>Properties:</strong> Anti-inflammatory, antioxidant, and antimicrobial.</li>
+                        <li><strong>Benefits:</strong>
+                            <ul>
+                                <li>Reduces inflammation in conditions like arthritis.</li>
+                                <li>Improves skin health and wound healing.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Common Uses:</strong>
+                            <ul>
+                                <li>Key ingredient in blood-purifying formulas.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+        
+                <div class="card" onclick="toggleDetails('shilajit-details')">
+                    <h3>Shilajit</h3>
+                    <p>A mineral-rich resin known for its rejuvenative properties.</p>
+                </div>
+                <div class="card-details" id="shilajit-details" style="display: none;">
+                    <h4>Shilajit</h4>
+                    <ul>
+                        <li><strong>Source:</strong> A mineral-rich resin derived from rocks in the Himalayas.</li>
+                        <li><strong>Properties:</strong> Rejuvenative, adaptogenic, and anti-aging.</li>
+                        <li><strong>Benefits:</strong>
+                            <ul>
+                                <li>Boosts energy and stamina by enhancing mitochondrial function.</li>
+                                <li>Helps with sexual health and improves fertility.</li>
+                                <li>Contains fulvic acid, aiding nutrient absorption and detoxification.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Common Uses:</strong>
+                            <ul>
+                                <li>Used in vitality tonics and anti-aging supplements.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+        
+                <div class="card" onclick="toggleDetails('tulsi-details')">
+                    <h3>Tulsi</h3>
+                    <p>Immunomodulatory herb known for its respiratory-supportive properties.</p>
+                </div>
+                <div class="card-details" id="tulsi-details" style="display: none;">
+                    <h4>Tulsi (Ocimum sanctum)</h4>
+                    <ul>
+                        <li><strong>Properties:</strong> Immunomodulatory, antipyretic, and respiratory-supportive.</li>
+                        <li><strong>Benefits:</strong>
+                            <ul>
+                                <li>Enhances immune response to infections.</li>
+                                <li>Reduces respiratory issues like asthma and bronchitis.</li>
+                                <li>Acts as a natural remedy for fever and colds.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Common Uses:</strong>
+                            <ul>
+                                <li>Found in herbal teas, syrups for coughs, and immunity boosters.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+        
+                <div class="card" onclick="toggleDetails('brahmi-details')">
+                    <h3>Brahmi</h3>
+                    <p>Enhances memory, focus, and cognitive functions.</p>
+                </div>
+                <div class="card-details" id="brahmi-details" style="display: none;">
+                    <h4>Brahmi (Bacopa monnieri)</h4>
+                    <ul>
+                        <li><strong>Benefits:</strong> Enhances memory, focus, and cognitive functions.</li>
+                        <li><strong>Uses:</strong> Included in brain tonics and stress-relief formulations.</li>
+                    </ul>
+                </div>
+        
+                <div class="card" onclick="toggleDetails('neem-details')">
+                    <h3>Neem</h3>
+                    <p>Purifies the blood and treats skin disorders.</p>
+                </div>
+                <div class="card-details" id="neem-details" style="display: none;">
+                    <h4>Neem (Azadirachta indica)</h4>
+                    <ul>
+                        <li><strong>Benefits:</strong> Purifies the blood, treats skin disorders, and combats infections.</li>
+                        <li><strong>Uses:</strong> Found in detox formulations and skincare products.</li>
+                    </ul>
+                </div>
+        
+                <div class="card" onclick="toggleDetails('guggul-details')">
+                    <h3>Guggul</h3>
+                    <p>Supports heart health and aids in weight management.</p>
+                </div>
+                <div class="card-details" id="guggul-details" style="display: none;">
+                    <h4>Guggul (Commiphora mukul)</h4>
+                    <ul>
+                        <li><strong>Benefits:</strong> Lowers cholesterol, aids weight loss, and manages joint pain.</li>
+                        <li><strong>Uses:</strong> Used in heart health and weight management formulations.</li>
+                    </ul>
+                </div>
+        
+                <div class="card" onclick="toggleDetails('aloe-details')">
+                    <h3>Aloe Vera</h3>
+                    <p>Aids in digestion and promotes skin health.</p>
+                </div>
+                <div class="card-details" id="aloe-details" style="display: none;">
+                    <h4>Aloe Vera (Aloe barbadensis)</h4>
+                    <ul>
+                        <li><strong>Benefits:</strong> Aids in digestion, promotes skin health, and boosts immunity.</li>
+                        <li><strong>Uses:</strong> Widely used in digestive tonics and cosmetic applications.</li>
+                    </ul>
+                </div>
+            </div>
+        </section> 
+        </div>
+    </section>
+    
+    <script>
+     function toggleDetails(detailId) {
+        const details = document.getElementById(detailId);
+        const modalContent = document.getElementById('modal-content');
+        const blurBackground = document.getElementById('blur-background');
+        const infoModal = document.getElementById('info-modal');
+
+        if (details.style.display === "none") {
+            modalContent.innerHTML = details.innerHTML;
+            blurBackground.style.display = "block";
+            infoModal.classList.add('show');
+            infoModal.style.display = "block";
+            setTimeout(() => {
+                infoModal.style.opacity = 1;
+            }, 10);
+        } else {
+            details.style.display = "none";
+        }
+    }
+
+    function closeModal() {
+        const blurBackground = document.getElementById('blur-background');
+        const infoModal = document.getElementById('info-modal');
+
+        infoModal.style.opacity = 0;
+        setTimeout(() => {
+            blurBackground.style.display = "none";
+            infoModal.style.display = "none";
+            infoModal.classList.remove('show');
+        }, 300);
+
+        const detailsBlocks = document.querySelectorAll('.card-details');
+        detailsBlocks.forEach(block => {
+            block.style.display = "none";
+        });
+    }
+function toggleYogaDetails(detailId) {
+    const details = document.getElementById(detailId);
+    const modalContent = document.getElementById('modal-content');
+    const blurBackground = document.getElementById('blur-background');
+    const infoModal = document.getElementById('info-modal');
+
+    if (details.style.display === "none") {
+        modalContent.innerHTML = details.innerHTML;
+        blurBackground.style.display = "block";
+        infoModal.style.display = "block";
+        infoModal.style.opacity = 1;
+    } else {
+        details.style.display = "none";
+    }
+}
+       
+    </script>
+    
+    <div class="blur-background" id="blur-background"></div>
+    <div class="info-modal" id="info-modal">
+        <div id="modal-content"></div>
+        <button id="close-button" onclick="closeModal()">Close</button>
+    </div>
+   
+    <section id="remedies" class="section remedies">
+        <h2 class="section-title">Home Remedies</h2>
+        <div class="card-container">
+            <div class="card" onclick="toggleDetails('common-cold-details')">
+                <h3>Common Cold</h3>
+                <p>Viral infection leading to congestion, sore throat, and fatigue.</p>
+            </div>
+            <div class="card-details" id="common-cold-details" style="display: none;">
+                <h4>Common Cold</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Drink warm liquids like herbal tea with honey to soothe the throat and ease congestion.</li>
+                    <li><strong>Additional Tips:</strong> Rest and stay hydrated with water or broths.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('indigestion-details')">
+                <h3>Indigestion</h3>
+                <p>Overeating, stress, or consuming fatty foods can lead to discomfort.</p>
+            </div>
+            <div class="card-details" id="indigestion-details" style="display: none;">
+                <h4>Indigestion</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Drink ginger tea to aid digestion.</li>
+                    <li><strong>Additional Tips:</strong> Chew fennel seeds to reduce bloating and discomfort.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('sore-throat-details')">
+                <h3>Sore Throat</h3>
+                <p>Bacterial or viral infection causing pain and discomfort.</p>
+            </div>
+            <div class="card-details" id="sore-throat-details" style="display: none;">
+                <h4>Sore Throat</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Gargle warm salt water to reduce swelling and kill bacteria.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('constipation-details')">
+                <h3>Constipation</h3>
+                <p>Low fiber intake or dehydration can lead to this issue.</p>
+            </div>
+            <div class="card-details" id="constipation-details" style="display: none;">
+                <h4>Constipation</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Consume warm prune juice or eat high-fiber fruits like pears.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('acid-reflux-details')">
+                <h3>Acid Reflux</h3>
+                <p>Weakness in the lower esophageal sphincter can cause discomfort.</p>
+            </div>
+            <div class="card-details" id="acid-reflux-details" style="display: none;">
+                <h4>Acid Reflux</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Drink a mixture of water and apple cider vinegar before meals.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('nausea-details')">
+                <h3>Nausea</h3>
+                <p>Caused by motion sickness, pregnancy, or infection.</p>
+            </div>
+            <div class="card-details" id="nausea-details" style="display: none;">
+                <h4>Nausea</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Sip on chamomile or peppermint tea to calm the stomach.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('cough-details')">
+                <h3>Cough</h3>
+                <p>Can be caused by irritants or respiratory infections.</p>
+            </div>
+            <div class="card-details" id="cough-details" style="display: none;">
+                <h4>Cough</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Mix honey and warm water or ginger juice to soothe the throat.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('diarrhea-details')">
+                <h3>Diarrhea</h3>
+                <p>Often caused by bacterial infections or food intolerance.</p>
+            </div>
+            <div class="card-details" id="diarrhea-details" style="display: none;">
+                <h4>Diarrhea</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Drink an oral rehydration solution with water, sugar, and salt to prevent dehydration.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('headache-details')">
+                <h3>Headache</h3>
+                <p>Can be caused by stress, dehydration, or tension.</p>
+            </div>
+            <div class="card-details" id="headache-details" style="display: none;">
+                <h4>Headache</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Apply a cool compress to the forehead and drink peppermint tea to relax.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('skin-rashes-details')">
+                <h3>Skin Rashes</h3>
+                <p>Caused by allergies or irritants.</p>
+            </div>
+            <div class="card-details" id="skin-rashes-details" style="display: none;">
+                <h4>Skin Rashes</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Apply aloe vera gel to reduce inflammation and soothe the skin.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('bad-breath-details')">
+                <h3>Bad Breath</h3>
+                <p>Can result from poor oral hygiene or digestion issues.</p>
+            </div>
+            <div class="card-details" id="bad-breath-details" style="display: none;">
+                <h4>Bad Breath</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Chew fresh parsley or drink fennel seed tea to neutralize odors.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('dry-skin-details')">
+                <h3>Dry Skin</h3>
+                <p>Often caused by cold weather or dehydration.</p>
+            </div>
+            <div class="card-details" id="dry-skin-details" style="display: none;">
+                <h4>Dry Skin</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Apply coconut oil or a honey mask for hydration.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('joint-pain-details')">
+                <h3>Joint Pain</h3>
+                <p>Can be caused by arthritis or inflammation.</p>
+            </div>
+            <div class="card-details" id="joint-pain-details" style="display: none;">
+                <h4>Joint Pain</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Massage with warm olive oil to reduce stiffness.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('insomnia-details')">
+                <h3>Insomnia</h3>
+                <p>Often caused by stress or irregular sleep patterns.</p>
+            </div>
+            <div class="card-details" id="insomnia-details" style="display: none;">
+                <h4>Insomnia</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Drink warm milk with turmeric before bed.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('low-immunity-details')">
+                <h3>Low Immunity</h3>
+                <p>Can result from a poor diet or chronic stress.</p>
+            </div>
+            <div class="card-details" id="low-immunity-details" style="display: none;">
+                <h4>Low Immunity</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Consume foods rich in vitamin C, like oranges, and use herbal supplements like echinacea.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('fatigue-details')">
+                <h3>Fatigue</h3>
+                <p>Can be caused by anemia, dehydration, or overwork.</p>
+            </div>
+            <div class="card-details" id="fatigue-details" style="display: none;">
+                <h4>Fatigue</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Drink smoothies with spinach and bananas for an iron and potassium boost.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('earache-details')">
+                <h3>Earache</h3>
+                <p>Can be caused by infection or fluid buildup.</p>
+            </div>
+            <div class="card-details" id="earache-details" style="display: none;">
+                <h4>Earache</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Warm olive oil drops can soothe pain.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('stomach-cramps-details')">
+                <h3>Stomach Cramps</h3>
+                <p>Can be caused by the menstrual cycle or digestive upset.</p>
+            </div>
+            <div class="card-details" id="stomach-cramps-details" style="display: none;">
+                <h4>Stomach Cramps</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Use a hot water bottle on the abdomen for relief.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('cold-sores-details')">
+                <h3>Cold Sores</h3>
+                <p>Caused by the herpes simplex virus.</p>
+            </div>
+            <div class="card-details" id="cold-sores-details" style="display: none;">
+                <h4>Cold Sores</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Dab on honey or coconut oil to reduce swelling.</li>
+                </ul>
+            </div>
+    
+            <div class="card" onclick="toggleDetails('eye-strain-details')">
+                <h3>Eye Strain</h3>
+                <p>Caused by prolonged screen time.</p>
+            </div>
+            <div class="card-details" id="eye-strain-details" style="display: none;">
+                <h4>Eye Strain</h4>
+                <ul>
+                    <li><strong>Remedy:</strong> Apply chilled cucumber slices to the eyes.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    
+    <section id="yoga" class="section yoga-poses">
+        <h2 class="section-title">Yoga Asanas</h2>
+        <div class="card-container">
+          
+            <div class="card" onclick="toggleYogaDetails('sukhasana-details')">
+    <h3>Sukhasana (Easy Pose)</h3>
+    <p>Calms the mind, improves focus, and gently opens hips.</p>
+</div>
+            <div class="card-details" id="sukhasana-details" style="display: none;">
+                <h4>Sukhasana (Easy Pose)</h4>
+                <p><strong>How to Do It:</strong> Sit cross-legged with a straight spine, hands resting on your knees, and close your eyes for 2-3 minutes. Focus on your breath.</p>
+                <p><strong>Benefits:</strong> Calms the mind, improves focus, and gently opens hips.</p>
+                <img src="data:image/png;base64,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" alt="Sukhasana" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('marjaryasana-details')">
+                <h3>Marjaryasana-Bitilasana (Cat-Cow Pose)</h3>
+                <p>Warms up the spine, improves posture, and reduces back tension.</p>
+            </div>
+            <div class="card-details" id="marjaryasana-details" style="display: none;">
+                <h4>Marjaryasana-Bitilasana (Cat-Cow Pose)</h4>
+                <p><strong>How to Do It:</strong> Start in a tabletop position. Inhale as you arch your back (Cow), and exhale as you round your back (Cat). Repeat for 6-8 rounds.</p>
+                <p><strong>Benefits:</strong> Warms up the spine, improves posture, and reduces back tension.</p>
+                <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAMAAzAMBEQACEQEDEQH/xAAcAAEAAQUBAQAAAAAAAAAAAAAABAEDBQYHAgj/xABCEAACAQMBBAcFBQQIBwAAAAAAAQIDBBEFBhIhMQcTQVFhcZEUMoGhwRUiQlKxQ1NigggzNHKis8LSIyQlNWOSsv/EABoBAQACAwEAAAAAAAAAAAAAAAADBAECBQb/xAArEQEAAgIBAwMDBAIDAAAAAAAAAQIDEQQSITEyQVEFExQiM2GRofBCgcH/2gAMAwEAAhEDEQA/AO4gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgXmoUrS5oUaik5Vc7qSznHYvF5MTaIb0x2vEzHs9O9bWVaXOPGH0Gzo/mHujfUalRU25QqfkqRcX8xuGOmdbSjLUAAAAAAAAAAAAAAAAAAAAAAAMgQ9Q1C0061lc31enRpL8U3z8PFm1KWvOqxtpe9ccbtOmk6j0lWCliy0utdKMuE60lTXmub+SL9Ppt7eqdf5ULfU617Vjf8AhZodKClLFzo8ox/8VzvP0cV+ptP0yfa7SPqXzX/LadF2l0fXnGFtVXXx49TWW7OPku34ZKeXjZMfqjsvYeVjyemWe7SBOqAAAAAAAAAAAAAAAAAAAACjaXMApRaymmgI95cRt6FSrJNqK4Jc2+xepiZ13I79nINfnqu1Gs13bU6lxSoPcjutKnTa54bePqdnDfDxcUWyTqZ/32cfNjzcnNNccbiP992KvdE1Oxpdbd2VSFJc5pqaXm4t4J8XNwZZ1W8IMvDz4o3avb/r/wAY/wBS1Kq9Kc4zjOEnGcHmMk8NPwZiY32lmJ13b7srt/UoyhZ643Up5xG7xxj/AHu/zOZyeBHqx/06XH58x+nJ/bpdKpCpTjOElOMllSjxTXecrWu0utvfd75gAAAAAAAAAAAAAAAAACjeAMfUi7+5qU3KUbai92Si8OpLnz7llGvlJ6I37o2v65pWymk+1X040aKe5Tp00s1JPjuxXebNJnflo2hdI72o1qemvTKlC3cd6nUTcmufv4WFnHAgz+InabB6tabDpdrGysqVGK3XxlJrtbbyyDkZZyZOpZ4+KMVOlJnu4cakU1Lg0+Us8MMhruJ3XyltETWYt4cguVTjdV40XmkqslT4/hy8fLB7rHvorv4eEyRHXbXytG7RSc404OpUe5GKy2zW1orG7eG1azadV8s7sF0kvTb2Gmarx0mct2lWl71B57e+P6HnuRkjJkm0Q9Dx8c4scVl2+DUoqUWnF8U1yaIUz0AAAAAAAAAAAAAAAAAWrjf6uXVKLnh7qlyyCNb7oWiq56qr7RR6lOtUkoyeZcZyfpho1qky9O41O3Iun7f+3NH3pydP2WruRxwi96O8/j9308TZGi9E19qFSdbTrO1t42lKqq93cPO/LeTUY47fcfHsSZW5ERrcrPHmfEOqYzB55L6lT22ue+mL1+1u7vSq1vp0JSr1MKKi8NrOXj4It/T+iORE38Qp/UIvPHtWnmWmR2J2hcd5ae1w91zj8j1H5uCO0S8v+Fn+GDv7etptadHUKcradNJzVThhd5NGWk16onsgnFeLdEx3apqGou+mtzMbePur83izi8vkzltqPDt8XjRhrufKH5ce8qLb6K6H9SrajsPae0Scp2850E3zcYvC+WAN1AAAAAAAAAAAAAAAAAKNZAYAwe1+zFhtXpjsr+LjKL3qNaHvUp96+q7UBzbZ7YDbDZvaGM7GvZTsqkoxuKkp8J003+HnlZePM0vSLx3b0vNJ7OpahQp29koU1+Jc/wBSDNSK49Qnw3m2Tuhaf/b6C8W/kQ4P3E2f9uWwY8cHQc9pvSdsatq9n5wt3u6hb5nbvsn/AAS70/1wZiZiNR4Y6Y3ufL50nCdOcoVIuMovEotcU12fqYZU+PEDv3QdHGw0Jfmuq3/00B0EAAAAAAAAAAAAAAAAAAAKNAMIDH6xnqIL+Ir8j0rHG9aBp/8A3Ch/N+hX4/rWOR+22A6DnjA+YukOy9g231mgo7sXcdZFeE4qf+rHwA10DvXQXWjPYydGLy6N3UT+L3vqB0UAAAAAAAAAAAAAAAAAAAAACBq0c2yfdJFfkR+hPx5/Wx+mrOo0v4YyZBx/Wscj0M+X1BSXIDlPSZsHe6/tNS1GzuLahTnaxp1OtzlyjKXHguPCS9CLJlinlLjxTfw1mPRPfvnrNt8LWT/1Ef5Ma8JI4s/LpPRtsrV2Q025oV9Qp3SuqyrJxpdXu/dUccZPuRPW242r2rMTpuSkpLg0/iZ2wpKahFynJJLm2JmIZ1vwj0NRtriq6VKqpS8nx8jWuStp1EtrY7VjcpRujVDIAAAAAAAAAAAAAABT4gY/V6iVuoJrelNLGfj9CvyLfo0n48fr2j6NDeuqlT8sEvVkfGjvMpeVPaIZkuKYBj9YpuVCM0uMZZ+BX5Fd1WONbV9MRy488lFeWpUIylmXHIZPZ6aeUmn4MyTESToqaSlUk12JvODPVMsRER4eoU1SakuL7GYJ7+WUsL+EKahXnjjwk+Rbw5o8Sp58E73VlIy3llPK70WYnfeFXvE6l6MgAAAAAAAAAAAAACDeRuaqcKdOLjng3Uaz6EV+ufEJafbjzKFDS67bk9yLfjkr/j3nysRyaR4hkrO2jb08cN9+812lnHSKRpVyXm87SSRoAeKsFUg4SWUzExuNMxMxO4Y5aTHL/wCM8eCK340e8rP5Vvh6+yofvZehn8avyx+Vb4VjpdLP3qk38B+NVj8m65HTbaPOLl5yN4wUj2azyMk+6r0+2a4Qa8pCcFJYjPkj3Wvsujz355Nfx6t/ybr9ra+zvhVm1+VvgiSmPo90eTJ1+yUSIwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACzd3NCzoVLi6q06NGmszqVJKMYrvbA1en0lbHTuOp+3KG9+d05xh/wC7W78wNnsry2vraFzZXFK4oVFmFSlNSjJeDQF8AAAAAAAAAAAAAAAAAAAAAAAAAANd210mz13Svs6/jUlRqVIyahJxeY8VxIc2SaR2TYccXmduD7b7OUtD1t2ulK5uKEbZXFRODm6Ky03JpcI8Ob4cTOK/XXcsZcfTOobV0F6ze09br6Jvb9jUt53Kjj+rmpRTafc97j44JUTuAAAAAAAAAAAAAAAAAAAAAAAABRtICJQ1K1uLqrbUqmalN4axwb7cPtwYidt5paIiZRNZcusp8futPCKvJ8ws8X3azr9rXuNPv6elwoLUK9t1W/V4Ldy8Jv8Ank14sgpOp7+E2SNx28ofRHsbV2ep3Wo6m6bv666mMKct5U6aeefe3j0R0K3raO0ufas1nu6De3lGyt5V67luRaT3Vl8Xj6mZmIjZSk3t0x5e7evGvRjVgpKMuKyInbFo6Z1K5lGWFcgAAAAAAAAAAAAAAAAAAAA8yjntwBj5xp2V/CbjGFGrBQTSwoyWcLwzlmviUne1dfCVWoUrhYqwzjlxZi1K38ta3tXvVg9RtXYxfssHJVH93L7fFlW+GK2/hbpnm1f5YK/tNcuaTVG9taElylSjOM4+Uslnj5+Njt3rP9q3J4/Jyx5j+kPTdsLzTrtabtZTdWEZRkrhc44eU3jmspcfXJ1b8XHnp9zB/Tk05WXBf7ef+29ULenOEbjS7rcp1VvJRxOlLPbjs+DRzrRNZ14dSuWLRG+671V/Jf2m3XiqD/3GvdndfaEyKcYreabxxfebNFcgVAAAAAAAAAAAAAAAAAAADxVpQqwlCpFSjJYcWspg99rFvZ+zzzTuK3V/upNOK8srK8s4MabTbflG1iD6unJZxFvKK/JielPxpiLSxfascCkvOebcXVG41WlGjLMqVNxm12PLPU/SMdq4N29/Dyv1jLW2eIr7eUbZ/abUtCni0mqlBv79vU4xfiu5l7PxqZvPn5UcPJyYvT3/AIbtQ6TtPcf+Z067pz7VTcJx9W0/kc6307JHeJjToV+o0/5VmJa7qnTbFScNJ0Oc8ZXWXldQ/wAMVLPqihMamYdCJ3ESx9l01apCvF32j2dai2t5W85Qkl4N5Tfp5mGXXtA1mz1/SqOpadU36FVcM8HF9qa7GgMiAAAAAAAAAAAAAAAAAAAAC1cQVSlKMuWDW8brMNqTq0S1xvn3LmczX6tOnvttx6vPrLitUXKdWUk/Ntnu8demkR8Q8Je3Ve1ls3aI+pVOpsK048Go8CvyrdOG1lji16s1Yar5HnnoTjjGQOz9AFzUlpur2sptwp3EZxXdvR4/p8wOroCoAAAAAAAAAAAAAAAAAAAeKnuSzywYnxJHmGs1lvQqLvT5HM3qdur0xNdNMvej++VrG50qcbiD/Yze7NeCfJ/I9Tx/qcXrH3I1LyvJ+m2x2n7c7hgK+g6zbzcaukX6a/LQlNesU0Xq8jDb/lChODLE96yxWv6Tqy0uruaTqMnlcFZ1O/yK/MyUnDMRaJWeHjtGaJmJajKE4ScalOdOXbGpFxa+D49jOI7agHZf6PyXsGtS7faYR+G4n9QOtAAAAAAAAAAAAAAAAAAAAAt1v6qfkzW3iWa+Ya1U9yXkzmS60M5pC/6dQ/u/U6GH0Q5ub9yUzCJdIhgcR6fbbc1zSLrtrWtSm/5Jpr/MYHLwOtf0fq66/XLbk1GjVXjneT/RAdkXICoAAAAAAAAAAAAAAAAAAAeZLejJd/AxPg92sXHCFRd2Tlz5daPEM/psNyyoR7oJnSxxqkOZknd5SjdoPkBqHSHsra7T29j7VXrUlbVJNOljL3ljHHs4EWW80jcJMVIvbUtPh0XaAver6lLHb10OP+Ar/k22tTxqNn2P2b0DZStWubKrcK4rQVOoqtTezFPK4YRLTPWa/qQXwW6v0w2mOq2T4Kul5o3jNT5a/ZyfC49RtVFy6+DS7nxMzlpHuxGK/jSJDWqVS4UFCSpvhv5+hHHIiba9kn41unq2ydOpGpHehJSXeiaLRaNwgmJidS9mzAAAAAAAAAAAAAAABEub6jbt7zk2vyxyR2yVr5b1x2v4YGuuvbVNP78uBQ11W7Ojvpr3bNCO7FJclwOlEacve3syAEe/pdbaziueMojy13SUmK3TeGv+C5I5vh0lNyLfFJ+aDKu6lyigKdXB/hjnyAKMIcUsMzoSrS7latuMd6D5xzj0JMWXolBlw9bMW9xTrxUoPj3Pmi9TJW0dlK+O1J7r5u0AAAAAAAAAAAAAs3FOpUWKdV033pZNbRM+JZrMR5hEemym261xUn5kM4Jn1Snjka9NV+1s6dtJyhltrmzemKtPCPJltfylEqMAAUYEWVjbym5OnxfdyIpw0mdpYzXiNbV9htv3SH2afDH3r/KqsrdfsomftU+D7t/lcjQpQ92nFfym3REeIaTa0+ZVdKD96EX8DPTE+YImY8Stuzt3+xj6Gs46/DaMl/kp2lCnNThTSa7RGOtZ3EE5LWjUykG7QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB/9k=" alt="Cat-Cow Pose" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('tadasana-details')">
+                <h3>Tadasana (Mountain Pose)</h3>
+                <p>Improves posture, enhances focus, and activates the whole body.</p>
+            </div>
+            <div class="card-details" id="tadasana-details" style="display: none;">
+                <h4>Tadasana (Mountain Pose)</h4>
+                <p><strong>How to Do It:</strong> Stand tall with feet together, arms by your side. Stretch your arms overhead and reach upward while keeping your feet grounded. Hold for 1 minute.</p>
+                <p><strong>Benefits:</strong> Improves posture, enhances focus, and activates the whole body.</p>
+                <img src="data:image/jpeg;base64,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" alt="Mountain Pose" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('surya-namaskar-details')">
+                <h3>Surya Namaskar (Sun Salutation)</h3>
+                <p>Boosts energy, stretches the entire body, and enhances cardiovascular health.</p>
+            </div>
+            <div class="card-details" id="surya-namaskar-details" style="display: none;">
+                <h4>Surya Namaskar (Sun Salutation)</h4>
+                <p><strong>How to Do It:</strong> Perform 5-6 rounds of Sun Salutations, which involve a sequence of 12 poses (e.g., forward folds, lunges, plank, and upward-facing dog).</p>
+                <p><strong>Benefits:</strong> Boosts energy, stretches the entire body, and enhances cardiovascular health.</p>
+                <img src="data:image/png;base64,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" alt="Sun Salutation" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('virabhadrasana-details')">
+                <h3>Virabhadrasana II (Warrior II Pose)</h3>
+                <p>Strengthens the legs, stretches hips, and improves stamina.</p>
+            </div>
+            <div class="card-details" id="virabhadrasana-details" style="display: none;">
+                <h4>Virabhadrasana II (Warrior II Pose)</h4>
+                <p><strong>How to Do It:</strong> Step one foot back into a lunge, arms extended parallel to the floor, gaze over the front hand. Hold for 30 seconds on each side.</p>
+                <p><strong>Benefits:</strong> Strengthens the legs, stretches hips, and improves stamina.</p>
+                <img src="data:image/jpeg;base64,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" alt="Warrior II Pose" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('adho-mukha-svanasana-details')">
+                <h3>Adho Mukha Svanasana (Downward-Facing Dog)</h3>
+                <p>Stretches the hamstrings, calves, and spine while calming the mind.</p>
+            </div>
+            <div class="card-details" id="adho-mukha-svanasana-details" style="display: none;">
+                <h4>Adho Mukha Svanasana (Downward-Facing Dog)</h4>
+                <p><strong>How to Do It:</strong> From a tabletop position, lift your hips toward the ceiling to create an inverted V shape. Hold for 1 minute.</p>
+                <p><strong>Benefits:</strong> Stretches the hamstrings, calves, and spine while calming the mind.</p>
+                <img src="data:image/jpeg;base64,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" alt="Downward-Facing Dog" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('utkatasana-details')">
+                <h3>Utkatasana (Chair Pose)</h3>
+                <p>Strengthens thighs, core, and lower back.</p>
+            </div>
+            <div class="card-details" id="utkatasana-details" style="display: none;">
+                <h4>Utkatasana (Chair Pose)</h4>
+                <p><strong>How to Do It:</strong> Stand with feet together, bend your knees as if sitting in a chair, and raise your arms overhead. Hold for 30 seconds.</p>
+                <p><strong>Benefits:</strong> Strengthens thighs, core, and lower back.</p>
+                <img src="data:image/jpeg;base64,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" alt="Chair Pose" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('vrksasana-details')">
+                <h3>Vrksasana (Tree Pose)</h3>
+                <p>Improves balance, focus, and strengthens leg muscles.</p>
+            </div>
+            <div class="card-details" id="vrksasana-details" style="display: none;">
+                <h4>Vrksasana (Tree Pose)</h4>
+                <p><strong>How to Do It:</strong> Stand on one leg, place the sole of the opposite foot on your inner thigh or shin, and bring palms together in front of your chest. Hold for 30 seconds on each side.</p>
+                <p><strong>Benefits:</strong> Improves balance, focus, and strengthens leg muscles.</p>
+                <img src="data:image/jpeg;base64,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" alt="Tree Pose" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('vasisthasana-details')">
+                <h3>Vasisthasana (Side Plank Pose)</h3>
+                <p>Strengthens arms, core, and improves balance.</p>
+            </div>
+            <div class="card-details" id="vasisthasana-details" style="display: none;">
+                <h4>Vasisthasana (Side Plank Pose)</h4>
+                <p><strong>How to Do It:</strong> From a plank position, shift your weight to one hand and the edge of your foot, stacking your feet. Raise the other arm toward the sky. Hold for 30 seconds on each side.</p>
+                <p><strong>Benefits:</strong> Strengthens arms, core, and improves balance.</p>
+                <img src="data:image/jpeg;base64,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" alt="Side Plank Pose" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('navasana-details')">
+                <h3>Navasana (Boat Pose)</h3>
+                <p>Strengthens the core and improves concentration.</p>
+            </div>
+            <div class="card-details" id="navasana-details" style="display: none;">
+                <h4>Navasana (Boat Pose)</h4>
+                <p><strong>How to Do It:</strong> Sit on the floor, lift your legs, and balance on your sit bones while keeping the spine straight and arms parallel to the ground. Hold for 30 seconds.</p>
+                <p><strong>Benefits:</strong> Strengthens the core and improves concentration.</p>
+                <img src="data:image/jpeg;base64,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" alt="Boat Pose" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('paschimottanasana-details')">
+                <h3>Paschimottanasana (Seated Forward Bend)</h3>
+                <p>Stretches the hamstrings, relieves stress, and calms the mind.</p>
+            </div>
+            <div class="card-details" id="paschimottanasana-details" style="display: none;">
+                <h4>Paschimottanasana (Seated Forward Bend)</h4>
+                <p><strong>How to Do It:</strong> Sit with legs extended straight, reach forward to hold your feet or shins, and fold gently. Hold for 1 minute.</p>
+                <p><strong>Benefits:</strong> Stretches the hamstrings, relieves stress, and calms the mind.</p>
+                <img src="data:image/jpeg;base64,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" alt="Seated Forward Bend" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('setu-bandhasana-details')">
+                <h3>Setu Bandhasana (Bridge Pose)</h3>
+                <p>Strengthens the lower back and opens the chest.</p>
+            </div>
+            <div class="card-details" id="setu-bandhasana-details" style="display: none;">
+                <h4>Setu Bandhasana (Bridge Pose)</h4>
+                <p><strong>How to Do It:</strong> Lie on your back, bend your knees, and lift your hips toward the ceiling while pressing your feet into the mat. Hold for 30 seconds.</p>
+                <p><strong>Benefits:</strong> Strengthens the lower back and opens the chest.</p>
+                <img src="data:image/jpeg;base64,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" alt="Bridge Pose" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('viparita-karani-details')">
+                <h3>Viparita Karani (Legs-Up-the-Wall Pose)</h3>
+                <p>Relieves tired legs, improves circulation, and promotes relaxation.</p>
+            </div>
+            <div class="card-details" id="viparita-karani-details" style="display: none;">
+                <h4>Viparita Karani (Legs-Up-the-Wall Pose)</h4>
+                <p><strong>How to Do It:</strong> Lie on your back with your legs extended up against a wall. Hold for 3-5 minutes.</p>
+                <p><strong>Benefits:</strong> Relieves tired legs, improves circulation, and promotes relaxation.</p>
+                <img src="data:image/jpeg;base64,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" alt="Legs-Up-the-Wall" />
+            </div>
+    
+            <div class="card" onclick="toggleDetails('savasana-details')">
+                <h3>Savasana (Corpse Pose)</h3>
+                <p>Deep relaxation and stress relief.</p>
+            </div>
+            <div class="card-details" id="savasana-details" style="display: none;">
+                <h4>Savasana (Corpse Pose)</h4>
+                <p><strong>How to Do It:</strong> Lie flat on your back, arms by your side, palms facing upward. Close your eyes and relax your body completely. Hold for 5 minutes.</p>
+                <p><strong>Benefits:</strong> Deep relaxation and stress relief.</p>
+                <img src="data:image/png;base64,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" alt="Corpse Pose" />
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 Ayurveda Wellness. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add active class to navigation links on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const sections = document.querySelectorAll('section');
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 60) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+    </script>
+</body>
+</html>+
